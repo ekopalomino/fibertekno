@@ -81,7 +81,7 @@ FiberTekno | Kategori Produk
                 			<tr>
                 				<td>{{ $key+1 }}</td>
                 				<td>{{ $val->name }}</td>
-                                <td>{{ $val->Author->name }}</td>
+                                <td>{{ $val->created_by }}</td>
                 				<td>{{date("d F Y H:i",strtotime($val->created_at)) }}</td>
                 				<td>
                                     <a class="btn btn-xs btn-success modalMd" href="#" value="{{ action('Apps\ProductManagementController@categoryEdit',['id'=>$val->id]) }}" title="Edit Data" data-toggle="modal" data-target="#modalMd"><i class="fa fa-edit"></i></a>

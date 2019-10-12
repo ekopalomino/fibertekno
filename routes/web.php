@@ -123,6 +123,7 @@ Route::group(['prefix' => 'apps', 'middleware' => ['auth']], function() {
     Route::get('sales/orders/create','Apps\SalesManagementController@create')->name('sales.create');
     Route::get('sales/product/find','Apps\SalesManagementController@searchProduct')->name('sales.product');
     Route::post('sales/orders/store','Apps\SalesManagementController@storeSales')->name('sales.store');
+    Route::get('sales/orders/check-stocks/{id}','Apps\SalesManagementController@salesStock')->name('sales.stocks');
     Route::post('sales/orders/approve/{id}','Apps\SalesManagementController@processSales')->name('sales.approve');
     Route::post('sales/orders/rejected/{id}','Apps\SalesManagementController@rejectedSale')->name('sales.rejected');
     Route::get('sales/orders/pdf/{id}','Apps\SalesManagementController@salesPrint')->name('sales.pdf');
@@ -154,6 +155,7 @@ Route::group(['prefix' => 'apps', 'middleware' => ['auth']], function() {
     Route::get('inventories/internal-transfer','Apps\InventoryManagementController@internTransfer')->name('transfer.index');
     Route::get('inventories/internal-transfer/create','Apps\InventoryManagementController@addTransfer')->name('add.transfer');
     Route::post('inventories/internal-transfer/store','Apps\InventoryManagementController@internStore')->name('store.transfer');
+    Route::post('inventories/internal-transfer/approve/{id}','Apps\InventoryManagementController@transferApprove')->name('transfer.approve');
     Route::post('inventories/internal-transfer/accept/{id}','Apps\InventoryManagementController@transferAccept')->name('transfer.accept');
     Route::get('inventories/internal-transfer/view/{id}','Apps\InventoryManagementController@transferView')->name('transfer.view');
     Route::get('inventories/purchase-receipt','Apps\InventoryManagementController@receiptIndex')->name('receipt.index');
@@ -194,4 +196,10 @@ Route::group(['prefix' => 'apps', 'middleware' => ['auth']], function() {
     Route::post('invoices/payment-receive/{id}','Apps\InvoiceManagementController@invoicePayment')->name('invoice.payment');
     Route::get('invoices/show/{id}','Apps\InvoiceManagementController@invoiceShow')->name('invoice.show');
     Route::get('invoices/print/{id}','Apps\InvoiceManagementController@invoicePrint')->name('invoice.print');
+    /*-----------------------End Finance Management------------------------------------*/
+
+    /*-----------------------Return Product Management------------------------------------*/
+    Route::get('inventories/return-products','Apps\InventoryManagementController@returIndex')->name('retur.index');
+    Route::get('inventories/return-products/{id}','Apps\InventoryManagementController@returForm')->name('retur.form');
+    Route::post('inventories/return-products/store','Apps\InventoryManagementController@returStore')->name('retur.store');
 });

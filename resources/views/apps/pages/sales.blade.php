@@ -107,9 +107,7 @@ FiberTekno | Sales Management
                                 <td>
                                     @if($sale->status_id != 'af0e1bc3-7acd-41b0-b926-5f54d2b6c8e8')
                                     <a class="btn btn-xs btn-info" title="Edit" href="{{ route('sales.show',$sale->id) }}"><i class="fa fa-search"></i></a>
-                                    {!! Form::open(['method' => 'POST','route' => ['sales.approve', $sale->id],'style'=>'display:inline','onsubmit' => 'return ConfirmAccept()']) !!}
-                                    {!! Form::button('<i class="fa fa-check"></i>',['type'=>'submit','class' => 'btn btn-xs btn-success','title'=>'Approve Sale']) !!}
-                                    {!! Form::close() !!}
+                                    <a class="btn btn-xs btn-success modalMd" href="#" value="{{ action('Apps\SalesManagementController@salesStock',['id'=>$sale->id]) }}" title="Check Stock {{$sale->order_ref}}" data-toggle="modal" data-target="#modalMd"><i class="fa fa-edit"></i></a>
                                     {!! Form::open(['method' => 'POST','route' => ['sales.rejected', $sale->id],'style'=>'display:inline','onsubmit' => 'return ConfirmDelete()']) !!}
                                     {!! Form::button('<i class="fa fa-trash"></i>',['type'=>'submit','class' => 'btn btn-xs btn-danger','title'=>'Reject Sale']) !!}
                                     {!! Form::close() !!}

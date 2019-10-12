@@ -67,8 +67,11 @@ FiberTekno | Mutasi Barang
                                 </td>
                                 <td>
                                     <a class="btn btn-xs btn-info modalMd" href="#" value="{{ action('Apps\InventoryManagementController@transferView',['id'=>$val->id]) }}" title="Detail Mutasi" data-toggle="modal" data-target="#modalMd"><i class="fa fa-search"></i></a>
+                                    {!! Form::open(['method' => 'POST','route' => ['transfer.approve', $val->id],'style'=>'display:inline','onsubmit' => 'return ConfirmApprove()']) !!}
+                                    {!! Form::button('<i class="fa fa-check"></i>',['type'=>'submit','class' => 'btn btn-xs btn-success','title'=>'Setuju Mutasi']) !!}
+                                    {!! Form::close() !!}
                                     @if(Auth::user()->warehouse_id == $val->to_id)
-                                    {!! Form::open(['method' => 'POST','route' => ['transfer.accept', $val->id],'style'=>'display:inline','onsubmit' => 'return ConfirmDelete()']) !!}
+                                    {!! Form::open(['method' => 'POST','route' => ['transfer.accept', $val->id],'style'=>'display:inline','onsubmit' => 'return ConfirmReceive()']) !!}
                                     {!! Form::button('<i class="fa fa-check"></i>',['type'=>'submit','class' => 'btn btn-xs btn-success','title'=>'Terima Mutasi']) !!}
                                     {!! Form::close() !!}
                                     @endif
@@ -92,9 +95,19 @@ FiberTekno | Mutasi Barang
 @section('footer.scripts')
 <script src="{{ asset('assets/pages/scripts/table-datatables-buttons.min.js') }}" type="text/javascript"></script>
 <script>
-    function ConfirmDelete()
+    function ConfirmReceive()
     {
     var x = confirm("Mutasi Barang Diterima?");
+    if (x)
+        return true;
+    else
+        return false;
+    }
+</script>
+<script>
+    function ConfirmApprove()
+    {
+    var x = confirm("Mutasi Barang Disetujui?");
     if (x)
         return true;
     else

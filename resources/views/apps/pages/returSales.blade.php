@@ -1,6 +1,6 @@
 @extends('apps.layouts.main')
 @section('header.title')
-FiberTekno | Penyesuaian Persediaan
+FiberTekno | Retur Penjualan
 @endsection
 @section('header.styles')
 <link href="{{ asset('assets/global/plugins/datatables/datatables.min.css') }}" rel="stylesheet" type="text/css" />
@@ -14,53 +14,51 @@ FiberTekno | Penyesuaian Persediaan
             <div class="portlet box green">
                 <div class="portlet-title">
                     <div class="caption">
-                        <i class="fa fa-database"></i>Penyesuaian Persediaan
+                        <i class="fa fa-database"></i>Retur Penjualan
                     </div>
                 </div>
                 <div class="portlet-body">
-                    @if (count($errors) > 0) 
-                        <div class="alert alert-danger">
-                            <strong>Whoops!</strong> There were some problems with your input.<br><br>
-                                <ul>
-                                    @foreach ($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                    @endforeach
-                                </ul>
-                        </div>
-                    @endif
+                    @if (count($errors) > 0)
+            <div class="alert alert-danger">
+                <strong>Whoops!</strong> There were some problems with your input.<br><br>
+                <ul>
+                    @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+            @endif
                 	<table class="table table-striped table-bordered table-hover" id="sample_2">
                 		<thead>
                 			<tr>
                                 <th>No</th>
-                				<th>Produk</th>
-                                <th>Gudang</th>
-                                <th>Satuan</th>
-                                <th>Stok Awal</th>
-                                <th>Stok Akhir</th>
-                				<th>Tgl Dibuat</th>
+                                <th>Sales Order</th>
+                				<th>Status</th>
+                                <th>Dibuat Oleh</th>
+                                <th>Tgl Dibuat</th>
+                                <th>Tgl Dikirim</th>
                                 <th></th>
                 			</tr>
                 		</thead>
                 		<tbody>
-                            @foreach($data as $key => $product)
-                			<tr>
-                				<td>{{ $key+1 }}</td>
-                				<td>{{ $product->Products->name }}</td>
+                            @foreach($sales as $key=>$val)
+                            <tr>
+                                <td>{{ $key+1 }}</td>
+                                <td>{{ $val->order_ref }}</td>
                                 <td>
-                                    @if(!empty($product->warehouse_id))
-                                    {{ $product->Locations->name }}
+                                    @if(($val->status_id) == 'c2fdba02-e765-4ee8-8c8c-3073209ddd26')
+                                    <label class="badge badge-danger">{{ $val->Statuses->name }}</label>
+                                    @else
+                                    <label class="badge badge-success">{{ $val->Statuses->name }}</label>
                                     @endif
                                 </td>
-                                <td>{{ $product->Products->Uoms->name }}</td>
-                                <td>{{ number_format($product->opening_amount,2,',','.')}}</td>
-                                <td>{{ number_format($product->closing_amount,2,',','.')}}</td>
-                				<td>{{date("d F Y H:i",strtotime($product->created_at)) }}</td>
+                                <td>{{ $val->created_by }}</td>
+                                <td>{{date("d F Y H:i",strtotime($val->created_at)) }}</td>
+                                <td>{{date("d F Y H:i",strtotime($val->updated_at)) }}</td>
                                 <td>
-                                    @can('Can Create Adjustment')
-                                    <a class="btn btn-xs btn-success modalMd" href="#" value="{{ action('Apps\InventoryManagementController@makeAdjust',['id'=>$product->id]) }}" title="Buat Penyesuaian" data-toggle="modal" data-target="#modalMd"><i class="fa fa-edit"></i></a>
-                                    @endcan
+                                    <a class="btn btn-xs btn-danger modalMd" href="#" value="{{ action('Apps\InventoryManagementController@returForm',['id'=>$val->id]) }}" title="Retur {{$val->order_ref}}" data-toggle="modal" data-target="#modalMd"><i class="fa fa-reply-all"></i></a>
                                 </td>
-                			</tr>
+                            </tr>
                             @endforeach
                 		</tbody>
                 	</table>

@@ -18,7 +18,11 @@
             <div class="row">
             	<div class="col-md-12">
                     <div class="form-group">
-                        <label class="control-label">Penyesuaian Stok</label>
+                        <label class="control-label">Jenis Penyesuaian</label>
+                        {!! Form::select('adjust_type', array('0'=>'Please Select','1'=>'Barang Masuk','2'=>'Barang Keluar'),[], array('class' => 'form-control')) !!}
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label">Jumlah Penyesuaian</label>
                         {!! Form::text('adjust_amount', null, array('placeholder' => 'Jumlah','class' => 'form-control')) !!}
                     </div>
                     <div class="form-group">

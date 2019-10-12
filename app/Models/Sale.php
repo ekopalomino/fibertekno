@@ -60,4 +60,9 @@ class Sale extends Model
     {
         return $this->hasOne(Delivery::class,'sales_ref');
     }
+
+    public function Products()
+    {
+        return $this->belongsTo(Product::class,'product_id');
+    }
 }

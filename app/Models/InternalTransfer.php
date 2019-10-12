@@ -13,6 +13,7 @@ class InternalTransfer extends Model
         'status_id',
         'created_by',
         'updated_by',
+        'received_by',
     ];
 
     public function From()

@@ -115,7 +115,7 @@ class ProductManagementController extends Controller
     public function productStore(Request $request)
     {
         $this->validate($request, [
-            'barcode' => 'required|numeric',
+            'product_barcode' => 'required|numeric',
             'name' => 'required|unique:products,name',
             'category_id' => 'required',
             'uom_id' => 'required',
@@ -137,7 +137,7 @@ class ProductManagementController extends Controller
             ->move($destinationPath, $filename);
 
             $input = [ 
-                'product_barcode' => $request->input('barcode'),
+                'product_barcode' => $request->input('product_barcode'),
                 'name' => $request->input('name'),
                 'category_id' => $request->input('category_id'),
                 'uom_id' => $request->input('uom_id'),
@@ -152,7 +152,7 @@ class ProductManagementController extends Controller
             ];
         } else {
             $input = [
-                'product_barcode' => $request->input('barcode'),
+                'product_barcode' => $request->input('product_barcode'),
                 'name' => $request->input('name'),
                 'category_id' => $request->input('category_id'),
                 'uom_id' => $request->input('uom_id'),
@@ -204,14 +204,18 @@ class ProductManagementController extends Controller
 
     public function productBarcode() 
     {
-        $data = Product::where('active','2b643e21-a94c-4713-93f1-f1cbde6ad633')->get();
+        $data = Product::where('active','2b643e21-a94c-4713-93f1-f1cbde6ad633')
+                        ->where('is_sale','1')
+                        ->orderBy('name','ASC')->get();
         
         return view('apps.pages.productBarcode',compact('data'));
     }
 
     public function barcodePdf()
     {
-        $data = Product::where('active','2b643e21-a94c-4713-93f1-f1cbde6ad633')->orderBy('name','ASC')->get();
+        $data = Product::where('active','2b643e21-a94c-4713-93f1-f1cbde6ad633')
+                        ->where('is_sale','1')
+                        ->orderBy('name','ASC')->get();
 
         $pdf = PDF::loadview('apps.print.barcode',compact('data'));
         return $pdf->download('barcode.pdf');
@@ -231,7 +235,7 @@ class ProductManagementController extends Controller
     public function productUpdate(Request $request,$id)
     {
         $this->validate($request, [
-            'barcode' => 'required|numeric',
+            'product_barcode' => 'required|numeric',
             'name' => 'required',
             'category_id' => 'required',
             'uom_id' => 'required',
@@ -253,7 +257,7 @@ class ProductManagementController extends Controller
             ->move($destinationPath, $filename);
 
             $input = [ 
-                'product_barcode' => $request->input('barcode'),
+                'product_barcode' => $request->input('product_barcode'),
                 'name' => $request->input('name'),
                 'category_id' => $request->input('category_id'),
                 'uom_id' => $request->input('uom_id'),
@@ -268,7 +272,7 @@ class ProductManagementController extends Controller
             ];
         } else {
             $input = [
-                'product_barcode' => $request->input('barcode'),
+                'product_barcode' => $request->input('product_barcode'),
                 'name' => $request->input('name'),
                 'category_id' => $request->input('category_id'),
                 'uom_id' => $request->input('uom_id'),

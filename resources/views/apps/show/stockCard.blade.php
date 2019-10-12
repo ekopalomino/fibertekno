@@ -23,6 +23,8 @@
                 		<th>Brg Masuk</th>
                 		<th>Brg Keluar</th>
                 		<th>Sisa Brg</th>
+                        <th>Gudang</th>
+                        <th>Catatan</th>
                 	</tr>
                 </thead>
                 <tbody>
@@ -51,6 +53,8 @@
 	                	<td>{{ number_format($val->incoming,2,',','.')}}</td>
 	                	<td>{{ number_format($val->outgoing,2,',','.')}}</td>
 	                	<td>{{ number_format($val->remaining,2,',','.')}}</td>
+                        <td>{{ $val->Locations->name }}</td>
+                        <td>{{ $val->notes }}</td>
 	                </tr>
                 	@endforeach
                 </tbody>

@@ -7,6 +7,7 @@ use Erp\Http\Controllers\Controller;
 use Erp\Models\Sale;
 use Erp\Models\SaleItem;
 use Erp\Models\Invoice;
+use Erp\Models\Delivery;
 use Carbon\Carbon;
 use Auth;
 use PDF;
@@ -71,7 +72,10 @@ class InvoiceManagementController extends Controller
                         ->first();   
         $items = SaleItem::where('sales_id',$sales->order_ref)
                         ->get();
-        return view('apps.print.invoice',compact('source','sales','items'));
+        $deliveries = Delivery::where('sales_ref',$sales->order_ref)
+                                ->orderBy('updated_at','DESC')
+                                ->first();
+        return view('apps.print.invoice',compact('source','sales','items','deliveries'));
     }
 
     public function invoicePrint($id)

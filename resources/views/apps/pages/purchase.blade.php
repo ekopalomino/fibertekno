@@ -1,6 +1,6 @@
 @extends('apps.layouts.main')
 @section('header.title')
-FiberTekno | Purchase Management
+FiberTekno | Permintaan Eksternal
 @endsection
 @section('header.styles')
 <link href="{{ asset('assets/global/plugins/datatables/datatables.min.css') }}" rel="stylesheet" type="text/css" />
@@ -14,7 +14,7 @@ FiberTekno | Purchase Management
             <div class="portlet box green">
                 <div class="portlet-title">
                     <div class="caption">
-                        <i class="fa fa-database"></i>Data Purchase Order 
+                        <i class="fa fa-database"></i>Data Permintaan Eksternal 
                     </div>
                 </div>
                 <div class="portlet-body">

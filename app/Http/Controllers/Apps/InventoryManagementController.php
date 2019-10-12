@@ -17,6 +17,8 @@ use Erp\Models\DeliveryService;
 use Erp\Models\Sale;
 use Erp\Models\SaleItem;
 use Erp\Models\UomValue;
+use Erp\Models\ReturSale;
+use Erp\Models\ReturItem;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 use Carbon\Carbon;
@@ -80,25 +82,79 @@ class InventoryManagementController extends Controller
 
     public function storeAdjust(Request $request,$id)
     {
+        $this->validate($request, [
+            'adjust_type' => 'required|not_in:0',
+            'adjust_amount' => 'required|numeric',
+            'notes' => 'required',
+        ]);
         $ref = 'ADJ/'.(\GenerateRoman::integerToRoman(Carbon::now()->month)).'/'.(Carbon::now()->year).'';
-        $input = [
-            'reference_id' => $ref,
-            'type' => '1',
-            'inventory_id' => $id,
-            'product_id' => $request->input('product_id'),
-            'warehouse_id' => $request->input('warehouse_id'),
-            'incoming' => $request->input('adjust_amount'),
-            'outgoing' => '0',
-            'remaining' => $request->input('adjust_amount'),
-            'notes' => $request->input('notes'),
-        ];
         
         $products = Product::where('id',$request->input('product_id'))->first();
-        $source = Inventory::where('product_id',$request->input('product_id'))->where('warehouse_id',$request->input('warehouse_id'))->update([
-            'closing_amount' => $request->input('adjust_amount'),
-        ]);
-        
-        $movements = InventoryMovement::create($input);
+        $source = Inventory::where('product_id',$request->input('product_id'))->where('warehouse_id',$request->input('warehouse_id'))->first();
+        $sourceMove = InventoryMovement::where('product_id',$request->input('product_id'))->where('warehouse_id',$request->input('warehouse_id'))->orderBy('updated_at','DESC')->first();
+        if ($sourceMove == null && $request->input('adjust_type') == '1') {
+            $results = Inventory::where('product_id',$request->input('product_id'))->where('warehouse_id',$request->input('warehouse_id'))->update([
+                'closing_amount' => ($source->closing_amount) + ($request->input('adjust_amount')),
+            ]);
+            $movements = InventoryMovement::create([
+                'reference_id' => $ref,
+                'type' => '1',
+                'inventory_id' => $id,
+                'product_id' => $request->input('product_id'),
+                'warehouse_id' => $request->input('warehouse_id'),
+                'incoming' => $request->input('adjust_amount'),
+                'outgoing' => '0',
+                'remaining' => $request->input('adjust_amount'),
+                'notes' => $request->input('notes'),
+                ]);
+            
+        } elseif ($sourceMove == null && $request->input('adjust_type') == '2') {
+            $results = Inventory::where('product_id',$request->input('product_id'))->where('warehouse_id',$request->input('warehouse_id'))->update([
+                'closing_amount' => ($source->closing_amount) + ($request->input('adjust_amount')),
+            ]);
+            $movements = InventoryMovement::create([
+                'reference_id' => $ref,
+                'type' => '1',
+                'inventory_id' => $id,
+                'product_id' => $request->input('product_id'),
+                'warehouse_id' => $request->input('warehouse_id'),
+                'incoming' => '0',
+                'outgoing' => $request->input('adjust_amount'),
+                'remaining' => $request->input('adjust_amount'),
+                'notes' => $request->input('notes'),
+                ]);
+        } elseif ($request->input('adjust_type') == '1') {
+            $results = Inventory::where('product_id',$request->input('product_id'))->where('warehouse_id',$request->input('warehouse_id'))->update([
+                'closing_amount' => ($source->closing_amount) + ($request->input('adjust_amount')),
+            ]);
+            $movements = InventoryMovement::create([
+                'reference_id' => $ref,
+                'type' => '1',
+                'inventory_id' => $id,
+                'product_id' => $request->input('product_id'),
+                'warehouse_id' => $request->input('warehouse_id'),
+                'incoming' => $request->input('adjust_amount'),
+                'outgoing' => '0',
+                'remaining' => ($sourceMove->remaining) + ($request->input('adjust_amount')),
+                'notes' => $request->input('notes'),
+                ]);
+        } else {
+            $results = Inventory::where('product_id',$request->input('product_id'))->where('warehouse_id',$request->input('warehouse_id'))->update([
+                'closing_amount' => ($source->closing_amount) - ($request->input('adjust_amount')),
+            ]);
+            $movements = InventoryMovement::create([
+                'reference_id' => $ref,
+                'type' => '1',
+                'inventory_id' => $id,
+                'product_id' => $request->input('product_id'),
+                'warehouse_id' => $request->input('warehouse_id'),
+                'incoming' => '0',
+                'outgoing' => $request->input('adjust_amount'),
+                'remaining' => ($sourceMove->remaining) - ($request->input('adjust_amount')),
+                'notes' => $request->input('notes'),
+                ]);
+        }
+            
         $log = 'Stok '.($products->name).' Berhasil Disesuaikan';
          \LogActivity::addToLog($log);
         $notification = array (
@@ -313,6 +369,23 @@ class InventoryManagementController extends Controller
         return redirect()->route('transfer.index')->with($notification);
     }
 
+    public function transferApprove(Request $request,$id)
+    {
+        $data = InternalTransfer::find($id);
+        $data->update([
+            'status_id' => '458410e7-384d-47bc-bdbe-02115adc4449',
+            'updated_by' => auth()->user()->name,
+        ]);
+        $log = 'Internal Transfer '.($data->order_ref).' Berhasil Diproses';
+         \LogActivity::addToLog($log);
+        $notification = array (
+            'message' => 'Internal Transfer '.($data->order_ref).' Berhasil Diproses',
+            'alert-type' => 'success'
+        );
+
+        return redirect()->route('transfer.index')->with($notification);
+    }
+
     public function transferView($id)
     {
         $source = InternalTransfer::find($id);
@@ -326,7 +399,7 @@ class InventoryManagementController extends Controller
         $data = InternalTransfer::find($id);
         $accept = $data->update([
             'status_id' => '314f31d1-4e50-4ad9-ae8c-65f0f7ebfc43',
-            'updated_by' => auth()->user()->name,
+            'received_by' => auth()->user()->name,
         ]);
         $log = 'Internal Transfer '.($data->order_ref).' Berhasil Diterima';
          \LogActivity::addToLog($log);
@@ -352,7 +425,7 @@ class InventoryManagementController extends Controller
         $this->validate($request, [
             'sales_ref' => 'required',
             'delivery_service' => 'required',
-            'deivery_cost' => 'required',
+            'delivery_cost' => 'required',
         ]);
 
         $input = $request->all();
@@ -431,6 +504,107 @@ class InventoryManagementController extends Controller
         );
     
         return redirect()->route('delivery.index')->with($notification);
+    }
+
+    public function returIndex()
+    {
+        $sales = Sale::where('sales.status_id','=','458410e7-384d-47bc-bdbe-02115adc4449')
+                       ->orWhere('sales.status_id','=','e9395add-e815-4374-8ed3-c0d5f4481ab8')
+                       ->orderBy('updated_at','DESC')
+                       ->get();
+        
+        return view('apps.pages.returSales',compact('sales'));
+    }
+
+    public function returForm($id)
+    {
+        $locations = Warehouse::where('id','!=','34437a64-ca03-47ff-be0c-63da5814484e')
+                                ->where('id','!=','ce8b061c-b1bb-4627-b80f-6a42a364109b')
+                                ->pluck('name','id')->toArray();
+        $sales = Sale::join('sale_items','sale_items.sales_id','sales.id')
+                       ->where('sales.id',$id)
+                       ->get();
+        
+        return view('apps.input.returSales',compact('sales','locations'))->renderSections()['content'];
+    }
+
+    public function returStore(Request $request)
+    {
+        $this->validate($request, [
+            'delivery' => 'required',
+            'retur' => 'required',
+            'warehouse_id' => 'required',
+        ]);
+        $lastOrder = ReturSale::count();
+        $refs =  'RT/'.str_pad($lastOrder + 1, 4, "0", STR_PAD_LEFT).'/'.'FTI'.'/'.(\GenerateRoman::integerToRoman(Carbon::now()->month)).'/'.(Carbon::now()->year).'';
+        $sales = $request->sales_id;
+        $items = $request->product_id;
+        $delivered = $request->deliver;
+        $return = $request->retur;
+        
+        $data = ReturSale::create([
+            'sales_id' => $request->input('sales'),
+            'warehouse_id' => $request->input('warehouse_id'),
+            'created_by' => auth()->user()->name,
+        ]);
+        $referenceSales = Sale::where('id',$request->input('sales'))->update([
+            'status_id' => 'e9f870d8-ebe8-462e-a6b6-c03f4f5bd8eb',
+        ]);
+        
+        foreach($sales as $index=>$sale) {
+            $originInventory = Inventory::where('product_id',$items[$index])
+                                          ->where('warehouse_id',$request->input('warehouse_id'))
+                                          ->orderBy('updated_at','DESC')
+                                          ->first();
+            $originMovement = InventoryMovement::where('product_id',$items[$index])
+                                                 ->where('warehouse_id',$request->input('warehouse_id'))
+                                                 ->orderBy('updated_at','DESC')
+                                                 ->first();
+            $details = ReturItem::create([
+                'retur_id' => $data->id,
+                'product_id' => $items[$index],
+                'quantity' => $return[$index],
+            ]);
+            if($originInventory == null)
+            {
+                $dataInventory = Inventory::create([
+                    'product_id' => $items[$index],
+                    'warehouse_id' => $request->input('warehouse_id'),
+                    'min_stock' => '0',
+                    'opening_amount' => '0',
+                    'closing_amount' => $return[$index],
+                ]);
+                $dataMovement = InventoryMovement::create([
+                    'type' => '8',
+                    'inventory_id' => $dataInventory->id,
+                    'reference_id' => $refs,
+                    'product_id' => $items[$index],
+                    'warehouse_id' => $request->input('warehouse_id'),
+                    'incoming' => $return[$index],
+                    'outgoing' => '0',
+                    'remaining' => $return[$index],
+                ]);
+            } else {
+                $dataInventory = Inventory::where('product_id',$items[$index])
+                                            ->where('warehouse_id',$request->input('warehouse_id'))
+                                            ->update([
+                    'closing_amount' => ($originInventory->closing_amount) + ($return[$index]),
+                ]);
+                
+                $dataMovement = InventoryMovement::create([
+                    'type' => '8',
+                    'inventory_id' => $originInventory->id,
+                    'reference_id' => $refs,
+                    'product_id' => $items[$index],
+                    'warehouse_id' => $request->input('warehouse_id'),
+                    'incoming' => $return[$index],
+                    'outgoing' => '0',
+                    'remaining' => ($originMovement->remaining) + ($return[$index]),
+                ]);
+            }
+        }
+
+        return redirect()->route('retur.index');
     }
 
 }

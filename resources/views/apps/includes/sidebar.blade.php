@@ -173,7 +173,7 @@
             </li>
             @endcan
             @can('Can Access Purchasing')
-            <li class="nav-item {{ set_active(['request.create','purchase.index','request.form','purchase.show','request.show']) }}">
+            <li class="nav-item {{ set_active(['request.create','purchase.index','request.form','purchase.show','request.show','transfer.index','add.transfer']) }}">
                 <a href="javascript:;" class="nav-link nav-toggle">
                     <i class="icon-basket-loaded"></i>
                     <span class="title">Permintaan</span>
@@ -187,16 +187,16 @@
                         </a>
                     </li>
                     <li class="nav-item {{ set_active(['transfer.index','add.transfer']) }}">
-                                <a href="{{ route('transfer.index') }}" class="nav-link ">
-                                    <span class="title">Permintaan Internal</span>
-                                    <span class="badge badge-danger">{{$transfers}}</span>
-                                </a>
-                            </li>
+                        <a href="{{ route('transfer.index') }}" class="nav-link ">
+                            <span class="title">Permintaan Internal</span>
+                            <span class="badge badge-danger">{{$transfers}}</span>
+                        </a>
+                    </li>
                 </ul>
             </li>
             @endcan
             @can('Can Access Inventories')
-            <li class="nav-item  {{ set_active(['inventory.index','inventory.adjust','transfer.index','receipt.index','delivery.index','inventory.card','add.transfer','purchase.show']) }}">
+            <li class="nav-item  {{ set_active(['inventory.index','inventory.adjust','receipt.index','delivery.index','inventory.card','add.transfer','purchase.show','retur.index']) }}">
             	<a href="javascript:;" class="nav-link nav-toggle">
             		<i class="icon-grid"></i>
             		<span class="title">Persediaan</span>
@@ -213,31 +213,22 @@
                             <span class="title">Penyesuaian</span>
                         </a>
                     </li>
-                    <li class="nav-item {{ set_active(['transfer.index','receipt.index','delivery.index','add.transfer','purchase.show']) }}">
-                        <a href="javascript:;" class="nav-link nav-toggle">
-                            <span class="title">Pergerakan Stok</span>
-                            <span class="arrow"></span>
+                    <li class="nav-item {{ set_active(['receipt.index','purchase.show']) }}">
+                        <a href="{{ route('receipt.index') }}" class="nav-link ">
+                            <span class="title">Penerimaan Barang</span>
+                            <span class="badge badge-danger">{{$receipts}}</span>
                         </a>
-                        <ul class="sub-menu">
-                            <li class="nav-item {{ set_active(['receipt.index','purchase.show']) }}">
-                                <a href="{{ route('receipt.index') }}" class="nav-link ">
-                                    <span class="title">Penerimaan Barang</span>
-                                    <span class="badge badge-danger">{{$receipts}}</span>
-                                </a>
-                            </li>
-                            <li class="nav-item {{ set_active(['delivery.index']) }}">
-                                <a href="{{ route('delivery.index') }}" class="nav-link ">
-                                    <span class="title">Pengiriman Barang</span>
-                                    <span class="badge badge-danger">{{$deliveries}}</span>
-                                </a>
-                            </li>
-                            <li class="nav-item {{ set_active(['transfer.index','add.transfer']) }}">
-                                <a href="{{ route('transfer.index') }}" class="nav-link ">
-                                    <span class="title">Mutasi Internal</span>
-                                    <span class="badge badge-danger">{{$transfers}}</span>
-                                </a>
-                            </li>
-                        </ul>
+                    </li>
+                    <li class="nav-item {{ set_active(['delivery.index']) }}">
+                        <a href="{{ route('delivery.index') }}" class="nav-link ">
+                            <span class="title">Pengiriman Barang</span>
+                            <span class="badge badge-danger">{{$deliveries}}</span>
+                        </a>
+                    </li>
+                    <li class="nav-item {{ set_active(['retur.index']) }}">
+                        <a href="{{ route('retur.index') }}" class="nav-link ">
+                            <span class="title">Retur Barang</span>
+                        </a>
                     </li>
                 </ul>
             </li>

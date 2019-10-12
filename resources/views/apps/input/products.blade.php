@@ -27,7 +27,7 @@ Fiber Tekno | Tambah Produk
                     <div class="form-group">
                         <label class="col-md-3 control-label">Kode Barcode</label>
                         <div class="col-md-4">
-                            {!! Form::text('barcode', null, array('placeholder' => 'Product Barcode','class' => 'form-control')) !!}
+                            {!! Form::text('product_barcode', null, array('placeholder' => 'Product Barcode','class' => 'form-control')) !!}
                         </div>
                     </div>
                     <div class="form-group">

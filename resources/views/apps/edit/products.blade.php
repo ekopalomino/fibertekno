@@ -27,7 +27,7 @@ Fiber Tekno | Edit Product
                     <div class="form-group">
                         <label class="col-md-3 control-label">Product Barcode</label>
                         <div class="col-md-4">
-                            {!! Form::text('barcode', null, array('placeholder' => 'Product Barcode','class' => 'form-control')) !!}
+                            {!! Form::text('product_barcode', null, array('placeholder' => 'Product Barcode','class' => 'form-control')) !!}
                         </div>
                     </div>
                     <div class="form-group">
@@ -52,12 +52,6 @@ Fiber Tekno | Edit Product
                         <label class="col-md-3 control-label">Product UOM</label>
                         <div class="col-md-4">
                             {!! Form::select('uom_id', $uoms,old('uom_id'), array('class' => 'form-control')) !!}
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-md-3 control-label">Product Storage</label>
-                        <div class="col-md-4">
-                            {!! Form::select('warehouse_id', $locations,old('warehouse_id'), array('class' => 'form-control')) !!}
                         </div>
                     </div>
                     <div class="form-group">

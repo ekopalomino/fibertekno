@@ -12,6 +12,8 @@ class Delivery extends Model
     protected $fillable = [
         'order_ref',
         'sales_ref',
+        'delivery_service',
+        'delivery_cost',
         'status_id',
         'created_by',
         'updated_by',

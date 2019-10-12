@@ -40,6 +40,7 @@ class SalesManagementController extends Controller
         $inventories = Inventory::join('products','products.id','=','inventories.product_id')
                                 ->where('products.is_sale','1')
                                 ->where('inventories.warehouse_id','!=','c40f889e-6fa3-43f2-bc2a-5fdded5aafed')
+                                ->where('inventories.warehouse_id','!=','34437a64-ca03-47ff-be0c-63da5814484e')
                                 ->get();
         
         return view('apps.pages.sales',compact('sales','inventories'));
@@ -65,9 +66,8 @@ class SalesManagementController extends Controller
         $search = $request->get('product');
         
         $result = $products = Product::join('inventories','inventories.product_id','=','products.id')
-                            ->where('products.is_sale','=','1')
                             ->where('inventories.warehouse_id','=','afdcd530-bb5e-462b-8dda-1371b9195903')
-                            ->where('inventories.closing_amount','>=','products.min_stock')
+                            ->where('products.is_sale','=','1')
                             ->where('name','LIKE','%'.$search. '%')
                             ->orWhere('product_barcode','LIKE','%'.$search.'%')
                             ->select('products.id','products.name')
@@ -79,7 +79,7 @@ class SalesManagementController extends Controller
     public function storeSales(Request $request)
     {
         $latestOrder = Sale::where('status_id','!=','af0e1bc3-7acd-41b0-b926-5f54d2b6c8e8')->count();
-        $ref = 'SO/'.str_pad($latestOrder + 1, 4, "0", STR_PAD_LEFT).'/'.($request->input('client_code')).'/'.(\GenerateRoman::integerToRoman(Carbon::now()->month)).'/'.(Carbon::now()->year).'';
+        $ref = 'PO/'.str_pad($latestOrder + 1, 4, "0", STR_PAD_LEFT).'/'.($request->input('client_code')).'/'.(\GenerateRoman::integerToRoman(Carbon::now()->month)).'/'.(Carbon::now()->year).'';
 
         $details = Contact::where('ref_id',$request->input('client_code'))->first();
 
@@ -141,6 +141,17 @@ class SalesManagementController extends Controller
             'alert-type' => 'success'
         );
         return redirect()->route('sales.index')->with($notification);
+    }
+
+    public function salesStock($id)
+    {
+        $data = Sale::find($id);
+        $details = SaleItem::join('inventories','inventories.product_id','=','sale_items.product_id')
+                             ->join('products','products.id','sale_items.product_id')
+                             ->where('sale_items.sales_id',$id)
+                             ->get();
+        
+        return view('apps.show.salesStock',compact('details'))->renderSections()['content'];
     }
 
     public function processSales(Request $request,$id)
